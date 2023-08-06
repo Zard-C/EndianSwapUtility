@@ -10,6 +10,12 @@ A utility for easy c-style struct endianess conversion. Depends on boost::hana a
 [Boost.Hana]: https://www.boost.org/doc/libs/1_66_0/libs/hana/doc/html/index.html
 [C++17]: https://en.wikipedia.org/wiki/C%2B%2B17
 
+## Restrictions
+
+- Only supports structs with POD types.
+- Only supports structs with no padding.
+- Only supports structs with no bitfields.
+
 ## Usage
 
 ```cpp
@@ -29,6 +35,10 @@ int main() {
     return 0;
 }
 ```
+
+## Example
+
+See  [Example](./example/src/example.cpp) for a more complete example.
 
 ## Testing
 
