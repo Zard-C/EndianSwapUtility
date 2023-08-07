@@ -11,7 +11,7 @@ int main()
                                    0xDE,       { { 0x12345678, 0x9ABC, 0xDE }, { 0x12345678, 0x9ABC, 0xDE } } };
 
   // swap the endian of the struct
-  auto swapped_example_struct = endian_swap_utiliy::swap_endian(example_struct);
+  auto swapped_example_struct = endian_swap_utility::swap_endian(example_struct);
 
   // print the example_struct
   std::cout << "example_struct.a: " << std::hex << example_struct.a << std::endl;

@@ -1,12 +1,11 @@
 #ifndef __ENDIAN_SWAP_UTILITY_H__
 #define __ENDIAN_SWAP_UTILITY_H__
 #include <boost/hana.hpp>
-#include <boost/type_index.hpp>
 #include <vector>
 #include <algorithm>
 #include <numeric>
 
-namespace endian_swap_utiliy
+namespace endian_swap_utility
 {
 template <typename T>
 auto get_member_types(T object)
@@ -40,7 +39,7 @@ void generate_swap_mapping(std::vector<int>& transform_matrix, size_t& offset)
       if constexpr (std::is_fundamental_v<element_type>)
       {
         // get the num of elems of array
-        for (auto i = 0; i < num_of_elems; ++i)
+        for (size_t i = 0; i < num_of_elems; ++i)
         {
           auto it = transform_matrix.begin() + offset;
           std::reverse(it, it + sizeof(element_type));
@@ -50,7 +49,7 @@ void generate_swap_mapping(std::vector<int>& transform_matrix, size_t& offset)
       else
       {
         // parsing array of struct
-        for (auto i = 0; i < num_of_elems; ++i)
+        for (size_t i = 0; i < num_of_elems; ++i)
         {
           generate_swap_mapping<element_type>(transform_matrix, offset);
         }
@@ -80,7 +79,7 @@ T swap_endian(const T& value)
 
   auto value_ptr = reinterpret_cast<const char*>(&value);
   auto result_ptr = reinterpret_cast<char*>(&result);
-  for (auto i = 0; i < sizeof(T); ++i)
+  for (size_t i = 0; i < sizeof(T); ++i)
   {
     result_ptr[i] = value_ptr[transform_matrix[i]];
   }
@@ -88,5 +87,5 @@ T swap_endian(const T& value)
   return result;
 }
 
-}  // namespace endian_swap_utiliy
+}  // namespace endian_swap_utility
 #endif  // __ENDIAN_SWAP_UTILITY_H__
