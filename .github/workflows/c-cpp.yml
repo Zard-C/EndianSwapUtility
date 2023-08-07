@@ -23,7 +23,7 @@ jobs:
       run: mkdir build && cd build && cmake .. -DBUILD_TESTING=ON
     
     - name: make
-      run: make
+      run: cmake --build .
 
     - name: run
       run: | 
