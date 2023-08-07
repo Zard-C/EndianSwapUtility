@@ -19,13 +19,11 @@ jobs:
         sudo apt-get update 
         sudo apt-get install -y libboost-all-dev libgtest-dev
     
-    - name: configure
-      run: mkdir build && cd build && cmake .. -DBUILD_TESTING=ON
+    - name: Configure and Build
+      run: mkdir build && cd build && cmake .. -DBUILD_TESTING=ON && cmake --build . 
     
-    - name: make
-      run: cmake --build .
-
     - name: run
       run: | 
+        pwd
         find test -maxdepth 1 -type f -executable -exec {} \;
         find example -maxdepth 1 -type f -executable -exec {} \;
