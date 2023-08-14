@@ -21,13 +21,22 @@ A utility for easy c-style struct endianess conversion. Depends on boost::hana a
 ```cpp
 #include <endian_swap_utility.hpp>
 
-#pragma pack(1)
+#if defined(_MSC_VER)
+#pragma pack(push, 1)
+#endif
 struct MyStruct {
     int a;
     float b;
     double c;
-};
-#pragma pack()
+}
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((packed))
+#endif
+;
+
+#if defined(_MSC_VER)
+#pragma pack(pop)
+#endif
 
 int main() {
     MyStruct my_struct{1, 2.0f, 3.0};
@@ -52,7 +61,3 @@ make test
 ```
 
 Run example with `./example/example`.
-
-## TODO
-
-- [ ] Add unit test for `swap_endian` function. Currently only tested manually.
