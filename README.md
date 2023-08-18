@@ -55,9 +55,9 @@ See  [Example](./example/src/example.cpp) for a more complete example.
 cd EndianSwapUtility
 mkdir build
 cd build
-cmake .. -DENABLE_TESTING=ON
+cmake .. 
 make
-make test
 ```
 
 Run example with `./example/example`.
+Run test with `./test/test_swap_endian`

@@ -13,9 +13,8 @@ include_directories(
     include
 )
 
-if(BUILD_TESTING)
-    add_subdirectory(test)
-endif()
+enable_testing()
+add_subdirectory(test)
 
 add_subdirectory(example)
 

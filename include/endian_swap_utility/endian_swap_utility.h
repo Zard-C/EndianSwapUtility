@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <cstring>
 
 namespace endian_swap_utility
 {
@@ -20,22 +21,18 @@ auto get_member_types(T object)
 
 template <typename T>
 void generate_swap_mapping(std::vector<int>& transform_matrix, size_t& offset)
-{
-  namespace hana = boost::hana;
-  auto types = get_member_types(T{});
-  hana::for_each(types, [&transform_matrix, &offset](auto t) {
-    using type = typename decltype(t)::type;
-    if constexpr (std::is_fundamental_v<type>)
+{    
+    if constexpr (std::is_fundamental_v<T>)
     {
       auto it = transform_matrix.begin() + offset;
-      std::reverse(it, it + sizeof(type));
-      offset += sizeof(type);
+      std::reverse(it, it + sizeof(T));
+      offset += sizeof(T);
     }
-    else if constexpr (std::is_array_v<type>)
+    else if constexpr (std::is_array_v<T>)
     {
-      constexpr size_t num_of_elems = std::extent_v<type>;
-      // get array element type
-      using element_type = std::remove_all_extents_t<type>;
+      constexpr size_t num_of_elems = std::extent_v<T>;
+      // get array element T
+      using element_type = std::remove_all_extents_t<T>;
       if constexpr (std::is_fundamental_v<element_type>)
       {
         // get the num of elems of array
@@ -55,17 +52,22 @@ void generate_swap_mapping(std::vector<int>& transform_matrix, size_t& offset)
         }
       }
     }
-    else if constexpr (std::is_class_v<type>)
+    else if constexpr (std::is_class_v<T>)
     {
       // parsing struct
-      generate_swap_mapping<type>(transform_matrix, offset);
+      namespace hana = boost::hana;
+      auto types = get_member_types(T{});
+      hana::for_each(types, [&transform_matrix, &offset](auto t) {
+        using member_t = typename decltype(t)::type;
+        generate_swap_mapping<member_t>(transform_matrix, offset);
+      });
     }
     else
     {
-      static_assert(std::is_fundamental_v<type> || std::is_array_v<type> || std::is_class_v<type>,
+      static_assert(std::is_fundamental_v<T> || std::is_array_v<T> || std::is_class_v<T>,
                     "not supported type ");
     }
-  });
+  
 }
 
 template <typename T>
@@ -80,6 +82,28 @@ T swap_endian(const T& value)
   auto value_ptr = reinterpret_cast<const char*>(&value);
   auto result_ptr = reinterpret_cast<char*>(&result);
   for (size_t i = 0; i < sizeof(T); ++i)
+  {
+    result_ptr[i] = value_ptr[transform_matrix[i]];
+  }
+
+  return result;
+}
+
+// c-style array
+template <typename T, int N>
+T* swap_endian_arr(const T (&value)[N])
+{
+  std::vector<int> transform_matrix(sizeof(T) * N);
+  std::iota(transform_matrix.begin(), transform_matrix.end(), 0);
+  size_t offset = 0;
+  for(auto i = 0; i < N; i++)
+  generate_swap_mapping<T>(transform_matrix, offset);
+  T *result = reinterpret_cast<T *>(malloc(sizeof(T) * N));
+  memset(result, 0, sizeof(T) * N);
+
+  auto value_ptr = reinterpret_cast<const char*>(value);
+  auto result_ptr = reinterpret_cast<char*>(result);
+  for (size_t i = 0; i < N * sizeof(T); ++i)
   {
     result_ptr[i] = value_ptr[transform_matrix[i]];
   }
