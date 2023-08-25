@@ -116,6 +116,15 @@ static double endian_swap(double d)
   return *(double*)&i;
 }
 
+template<typename T>T auto_swap(T t){
+    for(uint8_t pivot = 0; pivot < sizeof(t)/2 && pivot < sizeof(t) - 1 - pivot; pivot ++){
+        *((uint8_t *)&t + pivot) ^= *((uint8_t *)&t+sizeof(t)-1- pivot);
+        *((uint8_t *)&t+sizeof(t)-1- pivot) ^= *((uint8_t *)&t + pivot);
+        *((uint8_t *)&t + pivot) ^= *((uint8_t *)&t+sizeof(t)-1- pivot);
+    }
+    return t;
+}
+
 TEST(EndianSwapUtility, TestSwapEndianNestedStruct)
 {
   ExampleStruct example_struct;
@@ -186,8 +195,8 @@ TEST(EndianSwapUtility, TestSwapEndianNestedFloatAndDoubleArray)
 TEST(EndianSwapUtility, TestPodClass)
 {
   
-  EXPECT_TRUE(std::is_pod<Podclass>::value);
-  EXPECT_FALSE(std::is_pod<NonPodclass>::value);
+  EXPECT_TRUE(std::is_trivial<Podclass>::value && std::is_standard_layout<Podclass>::value);
+  EXPECT_FALSE(std::is_trivial<NonPodclass>::value && std::is_standard_layout<NonPodclass>::value);
 
   Podclass pc{1, 2.0f, 3.0};
   ASSERT_EQ(sizeof(pc), sizeof(int) + sizeof(float) + sizeof(double));
@@ -196,16 +205,18 @@ TEST(EndianSwapUtility, TestPodClass)
   auto endianswap = endian_swap_utility::swap_endian(pc);
   EXPECT_EQ(endianswap.b, endian_swap(2.0f));
   EXPECT_EQ(endianswap.c, endian_swap(3.0));
-  EXPECT_EQ(0x12345678, __bswap_32(0x78563412));
-  EXPECT_EQ(0x1234567890abcdef, __bswap_64(0xefcdab9078563412));
+  uint8_t a = 0x12;
+  uint16_t b = 0x1234, c = 0x3412;
+  EXPECT_EQ(a,  auto_swap(a));
+  EXPECT_EQ(b,  auto_swap(c));
+  EXPECT_EQ(0x12345678,  auto_swap(0x78563412));
+  EXPECT_EQ(0x1234567890abcdefL, auto_swap(0xefcdab9078563412L));
 
-  EXPECT_EQ(endianswap.a, __bswap_32(pc.a));
+  EXPECT_EQ(endianswap.a, auto_swap(pc.a));
 
-  auto sw_b =  __bswap_32(*reinterpret_cast<uint32_t *>(&pc.b));
-  EXPECT_EQ(endianswap.b, *reinterpret_cast<float *>(&sw_b));
+  EXPECT_EQ(endianswap.b, auto_swap(pc.b));
 
-  auto sw_c = __bswap_64(*reinterpret_cast<uint64_t *>(&pc.c));
-  EXPECT_EQ(endianswap.c, *reinterpret_cast<double *>(&sw_c));
+  EXPECT_EQ(endianswap.c, auto_swap(pc.c));
 
 }
 
@@ -213,8 +224,7 @@ TEST(EndianSwapUtility, TestPod)
 {
   double a = 3.1415926;
   auto endianswap = endian_swap_utility::swap_endian(a);
-  auto sw_a = __bswap_64(*reinterpret_cast<uint64_t *>(&a));
-  EXPECT_EQ(endianswap, *reinterpret_cast<double *>(&sw_a));
+  EXPECT_EQ(endianswap, auto_swap(a));
 }
 
 TEST(EndianSwapUtility, TestPodArr)
@@ -223,8 +233,7 @@ TEST(EndianSwapUtility, TestPodArr)
   auto endianswap = endian_swap_utility::swap_endian_arr(a);
   for(int i = 0; i < 5; i++)
   {
-    auto sw_a = __bswap_64(*reinterpret_cast<uint64_t *>(&a[i]));
-    EXPECT_EQ(endianswap[i], *reinterpret_cast<double *>(&sw_a));
+    EXPECT_EQ(endianswap[i], auto_swap(a[i]));
   }
   free(endianswap);
   
