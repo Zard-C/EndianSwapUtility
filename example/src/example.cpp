@@ -69,5 +69,17 @@ int main()
   std::cout << "swapped_example_struct.nested_struct_array[1].c: " << std::hex
             << static_cast<int>(swapped_example_struct.nested_struct_array[1].c) << std::endl;
 
+
+  int single_int = 0x12345678;
+  std::cout << "single_int: " << std::hex << single_int << std::endl;
+  std::cout << "swapped_single_int: " << std::hex << endian_swap_utility::swap_endian(single_int) << std::endl;
+
+  uint32_t fundamental_array[2] = { 0x01234567, 0x89ABCDEF};
+  std::cout << "fundamental_array[0]: " << std::hex << fundamental_array[0] << std::endl;
+  std::cout << "fundamental_array[1]: " << std::hex << fundamental_array[1] << std::endl;
+  auto swapped_fundamental_array =  endian_swap_utility::swap_endian(fundamental_array);
+  std::cout << "swapped_fundamental_array[0]: " << std::hex << swapped_fundamental_array[0] << std::endl;
+  std::cout << "swapped_fundamental_array[1]: " << std::hex << swapped_fundamental_array[1] << std::endl;
+
   return 0;
 }
