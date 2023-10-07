@@ -10,12 +10,13 @@ A utility for easy c-style struct endianess conversion. Depends on boost::hana(u
 [Boost.Hana]: https://www.boost.org/doc/libs/1_66_0/libs/hana/doc/html/index.html
 [C++17]: https://en.wikipedia.org/wiki/C%2B%2B17
 
-## Restrictions
+## Supported Data Types
 
-[ x ] structs with POD types and no padding
-[ x ] c-style structs with POD types and no padding arrays
-[ x ] fundamental types
-[ x ] c-style fundamental array
+- [x] nested structs with POD types and no padding
+- [x] c-style `nested structs with POD types and no padding` arrays
+- [x] fundamental types
+- [x] c-style fundamental array
+- [ ] std::array<T, N>
 
 ## Usage
 
