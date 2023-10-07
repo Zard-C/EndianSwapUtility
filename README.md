@@ -1,6 +1,6 @@
 # EndianSwapUtility
 
-A utility for easy c-style struct endianess conversion. Depends on boost::hana and C++17.
+A utility for easy c-style struct endianess conversion. Depends on boost::hana(use reflection in cpp) and C++17.
 
 ## Dependencies
 
@@ -12,9 +12,10 @@ A utility for easy c-style struct endianess conversion. Depends on boost::hana a
 
 ## Restrictions
 
-- Only supports structs with POD types.
-- Only supports structs with no padding.
-- Only supports structs with no bitfields.
+[ x ] structs with POD types and no padding
+[ x ] c-style structs with POD types and no padding arrays
+[ x ] fundamental types
+[ x ] c-style fundamental array
 
 ## Usage
 

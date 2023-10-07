@@ -148,3 +148,33 @@ TEST(EndianSwapUtility, TestSwapEndianNestedFloatAndDoubleArray)
   EXPECT_EQ(swapped_nested_float_and_double_array_struct.b[0], little_to_big_endian(3.0));
   EXPECT_EQ(swapped_nested_float_and_double_array_struct.b[1], little_to_big_endian(4.0));
 }
+
+TEST(EndianSwapUtility, TestSwapEndianFundamentalCArray)
+{
+  uint32_t array[2] = { 0x12345678, 0xEFCDAB89 };
+  auto swapped_array = endian_swap_utility::swap_endian(array);
+  EXPECT_EQ(swapped_array[0], 0x78563412);
+  EXPECT_EQ(swapped_array[1], 0x89ABCDEF);
+}
+
+TEST(EndianSwapUtility, TestSwapEndianFundamentalType)
+{
+  uint32_t single_int = 0x12345678;
+  auto swapped_single_int = endian_swap_utility::swap_endian(single_int);
+  EXPECT_EQ(swapped_single_int, 0x78563412);
+}
+
+TEST(EndianSwapUtility, TestSwapEndianUint8Array)
+{
+  uint8_t array[2] = { 0x12, 0x34 };
+  auto swapped_array = endian_swap_utility::swap_endian(array);
+  EXPECT_EQ(swapped_array[0], 0x12);
+  EXPECT_EQ(swapped_array[1], 0x34);
+}
+
+TEST(EndianSwapUtility, TestSwapEndianUint8Type)
+{
+  uint8_t single_int = 0x12;
+  auto swapped_single_int = endian_swap_utility::swap_endian(single_int);
+  EXPECT_EQ(swapped_single_int, 0x12);
+}

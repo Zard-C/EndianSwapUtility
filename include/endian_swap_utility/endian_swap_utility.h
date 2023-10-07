@@ -68,9 +68,54 @@ void generate_swap_mapping(std::vector<int>& transform_matrix, size_t& offset)
   });
 }
 
+// specialize for fundamental type
 template <typename T>
-T swap_endian(const T& value)
+typename std::enable_if<std::is_fundamental<T>::value, T>::type swap_endian(const T& value)
 {
+  if constexpr (sizeof(T) == 1)
+  {
+    return value;
+  }
+  T result;
+  auto value_ptr = reinterpret_cast<const char*>(&value);
+  auto result_ptr = reinterpret_cast<char*>(&result);
+  for (size_t i = 0; i < sizeof(T); ++i)
+  {
+    result_ptr[i] = value_ptr[sizeof(T) - i - 1];
+  }
+  return result;
+}
+
+// specialize for array of fundamental type c-style array
+template <typename T>
+typename std::enable_if<std::is_array<T>::value && std::is_fundamental<std::remove_extent_t<T>>::value,
+                        std::array<std::remove_extent_t<T>, std::extent_v<T>>>::type
+swap_endian(const T& value)
+{
+  using element_type = std::remove_extent_t<T>;
+  constexpr size_t num_of_elems = std::extent_v<T>;
+  std::array<element_type, num_of_elems> result;
+
+  if constexpr (sizeof(element_type) == 1)
+  {
+    for (size_t i = 0; i < num_of_elems; ++i)
+    {
+      result[i] = value[i];
+    }
+    return result;
+  }
+
+  for (size_t i = 0; i < num_of_elems; ++i)
+  {
+    result[i] = swap_endian(value[i]);
+  }
+  return result;
+}
+
+template <typename T>
+typename std::enable_if<!std::is_fundamental<T>::value, T>::type swap_endian(const T& value)
+{
+  // generate transform matrix
   std::vector<int> transform_matrix(sizeof(T));
   std::iota(transform_matrix.begin(), transform_matrix.end(), 0);
   size_t offset = 0;
